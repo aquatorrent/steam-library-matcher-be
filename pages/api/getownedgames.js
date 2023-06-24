@@ -12,7 +12,7 @@ export default function GetOwnedGames(req, res) {
     var requests = urls.map(function(url){
       return fetch(url)
       .then(function(response) {
-    return response.json();
+        return response.json();
       })  
     });
     
@@ -20,10 +20,10 @@ export default function GetOwnedGames(req, res) {
     Promise.all(requests)
     .then((results) => {
       if (!results[0]) {
-        res.status(200).json({error: "empty result from server"});
+        res.status(200).json({error: "empty result from server", url:url});
       }
       res.status(200).json(results[0]);
     }).catch(function(err) {
-      res.status(200).json({error: err});
+      res.status(200).json({error: err, url:url});
     })
   }
