@@ -1,0 +1,24 @@
+{
+  "name": "steam-library-matcher-be",
+  "version": "0.5.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "next": "^12.1.5",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
+  },
+  "node": {
+    "net": "empty"
+  }
+}
