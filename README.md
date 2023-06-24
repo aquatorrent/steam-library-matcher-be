@@ -35,6 +35,6 @@ Acts as a proxy to [https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v
 
 Arguments:
 - key
-- steamids
+- steamid
 
 For more info on the arguments, check the [Steam API documentation](https://partner.steamgames.com/doc/webapi/ISteamUser) page.
