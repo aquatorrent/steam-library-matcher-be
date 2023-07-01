@@ -27,6 +27,8 @@ Acts as a proxy to [https://api.steampowered.com/IPlayerService/GetOwnedGames/v0
 Arguments:
 - key
 - steamid
+- [OPTIONAL] include_appinfo : include name to response, default to false
+- [OPTIONAL] appids : filter by appids, separated by comma
 
 For more info on the arguments, check the [Steam API documentation](https://developer.valvesoftware.com/wiki/Steam_Web_API#GetOwnedGames_.28v0001.29) page.
 
@@ -38,3 +40,29 @@ Arguments:
 - steamid
 
 For more info on the arguments, check the [Steam API documentation](https://partner.steamgames.com/doc/webapi/ISteamUser) page.
+
+## [GET] /api/getplayerachievementtotal
+Hits [http://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/](https://developer.valvesoftware.com/wiki/Steam_Web_API#GetPlayerAchievements_.28v0001.29) and count all total and obtained achievements.
+
+Arguments:
+- key
+- steamid
+- appids : appids, separated by comma
+
+For more info on the arguments, check the [Steam API documentation](https://developer.valvesoftware.com/wiki/Steam_Web_API#GetPlayerAchievements_.28v0001.29) page.
+
+## [GET] /api/getcreatedgiveaways
+Acts as a proxy to https://www.steamgifts.com/user/<username>?format=json&include_winners=1&page=<page>.
+
+Arguments:
+- username : steamgifts username
+- page
+
+For more info on the arguments, check the [Steamgifts API documentation](https://www.steamgifts.com/discussion/XFaPQ/json-support) page.
+
+## [GET] /api/gethltbtime
+Acts as a proxy to https://howlongtobeat.com/api/search. It will search by name first and then make sure that the game name is correct by comparing it with the appid.
+
+Arguments:
+- name : game name
+- appid
