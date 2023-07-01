@@ -41,9 +41,16 @@ export default function GetCreatedGiveaways(req, res) {
             results: []
         };
         for (const t of temp.results) {
+            // TODO: scrapping appid
+            // a = document.querySelectorAll(".game_description_column .tablet_list_item");
+
+            // for (let x of a) {
+            //     console.log(x.getAttribute('data-ds-appid'));
+            //     }
             let r = {
                 name: t.name,
                 app_id: t.app_id,
+                package_id: t.package_id,
                 link: t.link,
                 end_timestamp: t.end_timestamp,
                 winners: []

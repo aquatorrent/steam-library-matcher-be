@@ -10,7 +10,7 @@ export default function GetCreatedGiveaways(req, res) {
         appid=req.query.appid.replace(/[^0-9]/g,'');
     }
     
-    if (name === "" || appid === "") {
+    if (name === "") {
       res.status(200).json({error: "invalid input"});
       return;
     }
@@ -59,9 +59,9 @@ export default function GetCreatedGiveaways(req, res) {
             return;
         }
         for (let e of data.data) {
-            if (e.profile_steam == appid) {
+            if (!appid || appid == "" || appid === "" || e.profile_steam == appid) {
                 res.status(200).json({
-                    appid: appid,
+                    appid: e.profile_steam,
                     main: e.comp_main,
                     plus: e.comp_plus,
                     comp: e.comp_100

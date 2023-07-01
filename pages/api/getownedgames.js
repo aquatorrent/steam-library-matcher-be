@@ -46,12 +46,16 @@ export default function GetOwnedGames(req, res) {
     // Resolve all the promises
     Promise.all(requests)
     .then((results) => {
+      let modifiedRes = [];
       if (!results[0]) {
         res.status(200).json({error: "empty result from server", url:url});
+      } else if (results[0].response.game_count == 0) {
+        res.status(200).json([]);
+        return;
       }
+      
       let temp = results[0].response.games;
-      let modifiedRes = [];
-      for (const g of temp) {
+      for (let g of temp) {
         modifiedRes.push({
           appid: g.appid,
           name: g.name,
