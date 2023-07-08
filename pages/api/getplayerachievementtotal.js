@@ -62,7 +62,7 @@ export default function GetPlayerAchievementTotal(req, res) {
       return dlcMap;
     }).then((dlcMap) => {
       if (appids.length <= 0) {
-        res.status(200).json([]);
+        return res.status(200).json([]);
       }
 
       let urls = [];
