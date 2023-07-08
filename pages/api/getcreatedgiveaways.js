@@ -9,7 +9,7 @@ export default function GetCreatedGiveaways(req, res) {
         return fetch(url).then(function(response) {
             return response.json();
         }).catch(function(err) {
-            res.status(200).json({error: err, url:url});
+            return res.status(200).json({error: err, url:url});
         });
     };
 
@@ -35,7 +35,7 @@ export default function GetCreatedGiveaways(req, res) {
       .then(function(response) {
         return response.json();
       }).catch(function(err) {
-        res.status(200).json({error: err, url:url});
+        return res.status(200).json({error: err, url:url});
       });
     });
     
@@ -115,12 +115,12 @@ export default function GetCreatedGiveaways(req, res) {
                     modifiedRes.results.push(r);
                 }
             }
-            res.status(200).json(modifiedRes);
+            return res.status(200).json(modifiedRes);
         })
         .catch(function(err) {
-            res.status(200).json({error: err, url:url});
+            return res.status(200).json({error: err, url:url});
         });
     }).catch(function(err) {
-        res.status(200).json({error: err, url:url});
+        return res.status(200).json({error: err, url:url});
     });
   }

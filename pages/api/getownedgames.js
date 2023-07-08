@@ -3,13 +3,13 @@ export default function GetOwnedGames(req, res) {
     res.setHeader('Access-Control-Allow-Origin', 'https://aquatorrent.github.io');
     //res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    
+
     const fetchGameInfo = (app_id) => {
       let url = "https://store.steampowered.com/api/appdetails?appids="+app_id;
       return fetch(url).then(function(response) {
           return response.json();
       }).catch(function(err) {
-        res.status(200).json({error: err, url:url});
+          return res.status(200).json({error: err, url:url});
       });
     };
 
@@ -76,7 +76,7 @@ export default function GetOwnedGames(req, res) {
         inputJSON = `{"steamid":`+steamid+`,"include_appinfo":`+includeAppInfo+`,"appids_filter":[`+appids+`]}`
         inputJSON = "&input_json=" + encodeURIComponent(inputJSON);
       } else {
-        res.status(200).json([]);
+        return res.status(200).json([]);
       }
       let url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key="+key+"&steamid="+steamid+"&format=json&include_appinfo="+includeAppInfo+inputJSON;
       let urls = [url];
@@ -93,10 +93,9 @@ export default function GetOwnedGames(req, res) {
       .then((results) => {
         let modifiedRes = [];
         if (!results[0]) {
-          res.status(200).json({error: "empty result from server", url:url});
+          return res.status(200).json({error: "empty result from server", url:url});
         } else if (results[0].response.game_count == 0) {
-          res.status(200).json([]);
-          return;
+          return res.status(200).json([]);
         }
         
         let temp = results[0].response.games;
@@ -111,11 +110,11 @@ export default function GetOwnedGames(req, res) {
             playtime: g.playtime_forever
           });
         }
-        res.status(200).json(modifiedRes);
+        return res.status(200).json(modifiedRes);
       }).catch(function(err) {
-        res.status(200).json({error: err, url:url});
+        return res.status(200).json({error: err, url:url});
       });
     }).catch(function(err) {
-        res.status(200).json({error: err, url:urls});
+      return res.status(200).json({error: err, url:urls});
     });
   }

@@ -26,7 +26,7 @@ export default function GetOwnedGames(req, res) {
       .then(function(response) {
         return response.json();
       }).catch(function(err) {
-        res.status(200).json({error: err, url:url});
+        return res.status(200).json({error: err, url:url});
       });
     });
     
@@ -34,7 +34,7 @@ export default function GetOwnedGames(req, res) {
     Promise.all(requests)
     .then((results) => {
         if (!results[0]) {
-            res.status(200).json({error: "empty result from server", url:url});
+          return res.status(200).json({error: "empty result from server", url:url});
         }
         let temp = results[0].response.players;
         let modifiedRes = [];
@@ -45,8 +45,8 @@ export default function GetOwnedGames(req, res) {
             avatarmedium: p.avatarmedium
           });
         }
-        res.status(200).json(modifiedRes);
+        return res.status(200).json(modifiedRes);
     }).catch(function(err) {
-      res.status(200).json({error: "err", url:url});
+      return res.status(200).json({error: "err", url:url});
     })
   }

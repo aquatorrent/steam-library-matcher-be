@@ -9,7 +9,7 @@ export default function GetPlayerAchievementTotal(req, res) {
       return fetch(url).then(function(response) {
           return response.json();
       }).catch(function(err) {
-        res.status(200).json({error: err, url:url});
+          return res.status(200).json({error: err, url:url});
       });
     };
 
@@ -76,7 +76,7 @@ export default function GetPlayerAchievementTotal(req, res) {
         .then(function(response) {
           return response.json();
         }).catch(function(err) {
-          res.status(200).json({error: err, url:url});
+          return res.status(200).json({error: err, url:url});
         });
       });
       
@@ -106,11 +106,11 @@ export default function GetPlayerAchievementTotal(req, res) {
               }
               modifiedRes.push(temp);
           }
-          res.status(200).json(modifiedRes);
+          return res.status(200).json(modifiedRes);
       }).catch(function(err) {
-        res.status(200).json({error: err, url:urls});
+        return res.status(200).json({error: err, url:urls});
       });
     }).catch(function(err) {
-        res.status(200).json({error: err, url:urls});
+      return res.status(200).json({error: err, url:urls});
     });
   }

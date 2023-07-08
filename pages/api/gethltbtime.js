@@ -69,10 +69,10 @@ export default function GetCreatedGiveaways(req, res) {
                 return;
             }
         }
-        res.status(200).json({});
+        return res.status(200).json({});
     })
     .catch(function(err) {
-        res.status(200).json({error: err, url:url});
+        return res.status(200).json({error: err, url:url});
     });
   }
   
