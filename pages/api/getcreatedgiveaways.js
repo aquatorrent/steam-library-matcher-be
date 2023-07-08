@@ -34,7 +34,9 @@ export default function GetCreatedGiveaways(req, res) {
       return fetch(url)
       .then(function(response) {
         return response.json();
-      })  
+      }).catch(function(err) {
+        res.status(200).json({error: err, url:url});
+      });
     });
     
     // Resolve all the promises
