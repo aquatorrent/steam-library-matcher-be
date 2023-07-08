@@ -4,6 +4,15 @@ export default function GetCreatedGiveaways(req, res) {
     //res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
+    const fetchBundle = (package_id) => {
+        let url = "https://store.steampowered.com/api/packagedetails?packageids="+package_id;
+        return fetch(url).then(function(response) {
+            return response.json();
+        }).catch(function(err) {
+            res.status(200).json({error: err, url:url});
+        });
+    };
+
     let page ="";
     if (req.query.page) {
         page = req.query.page.replace(/[^0-9,]/g,'');
@@ -40,33 +49,76 @@ export default function GetCreatedGiveaways(req, res) {
             page: temp.page,
             results: []
         };
+        
+        let promise = [];
+        let pkgIDs = [];
         for (const t of temp.results) {
-            // TODO: scrapping appid
-            // a = document.querySelectorAll(".game_description_column .tablet_list_item");
+            if (t.package_id) {
+                promise.push(fetchBundle(t.package_id));
+                pkgIDs.push(t.package_id);
+            }
+        }
 
-            // for (let x of a) {
-            //     console.log(x.getAttribute('data-ds-appid'));
-            //     }
-            let r = {
-                name: t.name,
-                app_id: t.app_id,
-                package_id: t.package_id,
-                link: t.link,
-                end_timestamp: t.end_timestamp,
-                winners: []
-            };
-            for (const win of t.winners) {
-                if (win.received === true) {
-                    r.winners.push({
-                        steam_id: win.steam_id,
-                        username: win.username
-                    });
+        Promise.all(promise)
+        .then(results => {
+            let bundle = new Map();
+            if (pkgIDs.length > 0) {
+                for (const r of pkgIDs) {
+                    for (const a of results[0][r].data.apps) {
+                        let temp = {
+                            id: a.id,
+                            name: a.name,
+                        }
+                        if (bundle.has(r)) {
+                            bundle.get(r).push(temp);
+                        } else {
+                            bundle.set(r, [temp]);
+                        }
+                    }
                 }
             }
-            modifiedRes.results.push(r);
-        }
-        res.status(200).json(modifiedRes);
+
+            for (const t of temp.results) {
+                let r = {
+                    name: t.name,
+                    app_id: t.app_id,
+                    package_id: t.package_id,
+                    link: t.link,
+                    end_timestamp: t.end_timestamp,
+                    group: t.group,
+                    winners: []
+                };
+                for (const win of t.winners) {
+                    if (win.received === true) {
+                        r.winners.push({
+                            steam_id: win.steam_id,
+                            username: win.username
+                        });
+                    }
+                }
+                if (t.package_id) {
+                    for (const b of bundle.get(t.package_id)) {
+                        modifiedRes.results.push({
+                            name: b.name,
+                            package_name: r.name,
+                            app_id: b.id,
+                            package_id: r.package_id,
+                            link: r.link,
+                            end_timestamp: r.end_timestamp,
+                            group: r.group,
+                            winners: r.winners
+                        });
+                    }
+                } else {
+                    modifiedRes.results.push(r);
+                }
+            }
+            res.status(200).json(modifiedRes);
+        })
+        .catch(function(err) {
+            res.status(200).json({error: err, url:url});
+        });
     }).catch(function(err) {
         res.status(200).json({error: err, url:url});
-    })
+    });
   }

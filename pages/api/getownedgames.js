@@ -3,6 +3,15 @@ export default function GetOwnedGames(req, res) {
     res.setHeader('Access-Control-Allow-Origin', 'https://aquatorrent.github.io');
     //res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    
+    const fetchGameInfo = (app_id) => {
+      let url = "https://store.steampowered.com/api/appdetails?appids="+app_id;
+      return fetch(url).then(function(response) {
+          return response.json();
+      }).catch(function(err) {
+        res.status(200).json({error: err, url:url});
+      });
+    };
 
     let steamid = "";
     if(req.query.steamid) {
@@ -26,44 +35,87 @@ export default function GetOwnedGames(req, res) {
     if (includeAppInfo != "true") {
       includeAppInfo = false;
     }
+    let dlcOnly = req.query.dlc_only;
+    if (dlcOnly != "true") {
+      dlcOnly = false;
+    }
 
-    let inputJSON = "";
+    let appidsArr = [];    
     if (appids) {
-      inputJSON = `{"steamid":`+steamid+`,"include_appinfo":`+includeAppInfo+`,"appids_filter":[`+appids+`]}`
-      inputJSON = "&input_json=" + encodeURIComponent(inputJSON);
+      appidsArr = appids.split(",");
+    }
+    let urlDLC = [];
+    if (dlcOnly) {
+      for(let appid of appidsArr) {
+        urlDLC.push(fetchGameInfo(appid));
+      }
     }
     
-    let url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key="+key+"&steamid="+steamid+"&format=json&include_appinfo="+includeAppInfo+inputJSON;
-    let urls = [url];
-    
-    var requests = urls.map(function(url){
-      return fetch(url)
-      .then(function(response) {
-        return response.json();
-      })  
-    });
-    
-    // Resolve all the promises
-    Promise.all(requests)
+    Promise.all(urlDLC)
     .then((results) => {
-      let modifiedRes = [];
-      if (!results[0]) {
-        res.status(200).json({error: "empty result from server", url:url});
-      } else if (results[0].response.game_count == 0) {
+      let dlcMap = new Map();
+      if (!dlcOnly) {
+        return dlcMap;
+      }
+
+      let temp = [];
+      results.forEach((v,k) => {
+          let id = appidsArr[k];
+          if (!v[id] || !v[id].success || v[id].data.type != "dlc" || !v[id].data.fullgame || !v[id].data.fullgame.appid) {
+            return;
+          }
+          dlcMap.set(parseInt(v[id].data.fullgame.appid), parseInt(id));
+          temp.push(v[id].data.fullgame.appid);
+      });
+      appidsArr = temp;
+      appids = appidsArr.join();
+      return dlcMap;
+    }).then((dlcMap) => {
+      let inputJSON = "";
+      if (appids) {
+        inputJSON = `{"steamid":`+steamid+`,"include_appinfo":`+includeAppInfo+`,"appids_filter":[`+appids+`]}`
+        inputJSON = "&input_json=" + encodeURIComponent(inputJSON);
+      } else {
         res.status(200).json([]);
-        return;
       }
+      let url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key="+key+"&steamid="+steamid+"&format=json&include_appinfo="+includeAppInfo+inputJSON;
+      let urls = [url];
       
-      let temp = results[0].response.games;
-      for (let g of temp) {
-        modifiedRes.push({
-          appid: g.appid,
-          name: g.name,
-          playtime: g.playtime_forever
-        });
-      }
-      res.status(200).json(modifiedRes);
+      var requests = urls.map(function(url){
+        return fetch(url)
+        .then(function(response) {
+          return response.json();
+        })  
+      });
+      
+      // Resolve all the promises
+      Promise.all(requests)
+      .then((results) => {
+        let modifiedRes = [];
+        if (!results[0]) {
+          res.status(200).json({error: "empty result from server", url:url});
+        } else if (results[0].response.game_count == 0) {
+          res.status(200).json([]);
+          return;
+        }
+        
+        let temp = results[0].response.games;
+        for (let g of temp) {
+          let appid = g.appid;
+          if(dlcMap.has(appid) && dlcMap.get(appid)) {
+            appid = dlcMap.get(appid);
+          }
+          modifiedRes.push({
+            appid: appid,
+            name: g.name,
+            playtime: g.playtime_forever
+          });
+        }
+        res.status(200).json(modifiedRes);
+      }).catch(function(err) {
+        res.status(200).json({error: err, url:url});
+      });
     }).catch(function(err) {
-      res.status(200).json({error: err, url:url});
-    })
+        res.status(200).json({error: err, url:urls});
+    });
   }

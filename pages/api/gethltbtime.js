@@ -17,7 +17,7 @@ export default function GetCreatedGiveaways(req, res) {
 
     let body = {
         searchType:"games",
-        searchTerms: [name],
+        searchTerms: name.split(" "),
         searchPage:1,
         size:20,
         searchOptions:{
